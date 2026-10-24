@@ -1,0 +1,19 @@
+{
+  "name": "Pocket Fishing",
+  "version": "1.0",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        {
+          "path": "firmware/boot.bin",
+          "offset": 0
+        },
+        {
+          "path": "firmware/game.bin",
+          "offset": 57344
+        }
+      ]
+    }
+  ]
+}

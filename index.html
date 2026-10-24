@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pocket Fishing Installer</title>
+<meta name="description" content="ติดตั้งหรืออัปเดตเกม Pocket Fishing บนบอร์ด CYD (ESP32-2432S028) ผ่านเบราว์เซอร์ จากคอมหรือมือถือ Android">
+<meta property="og:title" content="Pocket Fishing — เกมตกปลาสบายๆ บนจอ CYD">
+<meta property="og:description" content="ติดตั้งผ่านเบราว์เซอร์ ไม่ต้องลงโปรแกรม ใช้ได้ทั้งคอมและมือถือ Android">
+<meta property="og:image" content="img/00_title.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #eef5f9; --paper: #fff; --ink: #14212b; --muted: #566a78; --line: #d3e2ec;
+  --accent: #1f7fb8; --accent-ink: #fff; --sun: #d9840a; --ok: #1f9d55; --bad: #c0392b;
+  --warn-bg: #fdf1e2; --tip-bg: #e3f1f9; --track: #dde9f1;
+  --display: "Bai Jamjuree", "IBM Plex Sans Thai", "Leelawadee UI", Tahoma, sans-serif;
+  --body: "IBM Plex Sans Thai", "Leelawadee UI", Tahoma, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #08121a; --paper: #0f1d28; --ink: #e4eef5; --muted: #8ea5b5; --line: #1f3444;
+          --accent: #5cc3f5; --accent-ink: #061420; --sun: #f5c542; --ok: #30d158; --bad: #ff6b5e;
+          --warn-bg: #2a1d0c; --tip-bg: #0f2636; --track: #1f3444; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16.5px/1.7 var(--body);
+       padding: 0 max(16px, env(safe-area-inset-right)) 48px max(16px, env(safe-area-inset-left)); }
+main { max-width: 680px; margin: 0 auto; display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+header { padding-top: 28px; display: grid; gap: 8px; }
+.hero { width: 100%; border-radius: 14px; border: 1px solid var(--line); image-rendering: pixelated; display: block; }
+.kicker { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1, h2 { font-family: var(--display); line-height: 1.25; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(26px, 7vw, 36px); }
+h1 span { color: var(--sun); }
+h2 { font-size: 19px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font-size: 13px; padding: 2px 10px; border-radius: 999px; background: var(--tip-bg); color: var(--accent); }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+.card > * { min-width: 0; }
+ol, ul { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+.choice { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 460px) { .choice { grid-template-columns: 1fr; } }
+.choice label { border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer; display: grid; gap: 2px; min-width: 0; }
+.choice input { accent-color: var(--accent); }
+.choice label:has(input:checked) { border-color: var(--accent); }
+.choice label.danger:has(input:checked) { border-color: var(--bad); }
+.choice b { font-family: var(--display); }
+.btn { appearance: none; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink);
+       font: 600 18px var(--body); padding: 14px 18px; cursor: pointer; width: 100%; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.btn.ghost { background: var(--track); color: var(--ink); font-size: 16px; padding: 10px; }
+.bar { height: 12px; border-radius: 999px; background: var(--track); overflow: hidden; }
+.bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+#status { font-weight: 600; overflow-wrap: anywhere; }
+#status.ok { color: var(--ok); }
+#status.bad { color: var(--bad); }
+.box { border-radius: 10px; padding: 12px 14px; }
+.warn { background: var(--warn-bg); }
+.tip { background: var(--tip-bg); }
+details summary { cursor: pointer; color: var(--muted); }
+pre#log { margin: 8px 0 0; max-height: 220px; overflow: auto; font: 12px/1.5 Consolas, monospace; white-space: pre-wrap;
+          background: var(--bg); border-radius: 8px; padding: 8px; overflow-wrap: anywhere; }
+select { font: inherit; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); max-width: 100%; }
+a { color: var(--accent); }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 10px; }
+.shots figure { margin: 0; }
+.shots img, .wide img { width: 100%; display: block; border-radius: 8px; border: 1px solid var(--line); }
+.shots figcaption { font-size: 13px; color: var(--muted); padding-top: 4px; }
+.links { display: grid; gap: 8px; }
+.links a { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; }
+.links a span { color: var(--muted); font-size: 14px; }
+li, p { overflow-wrap: anywhere; }
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img class="hero" src="img/00_title.jpg" alt="หน้าปกเกม Pocket Fishing: ตู้ปลาสีฟ้ามีปลาว่ายอยู่" width="640" height="480">
+    <div class="kicker">Pocket Fishing · cozy fishing game</div>
+    <h1>ติดตั้ง <span>Pocket Fishing</span> ผ่านเบราว์เซอร์</h1>
+    <p class="muted">เกมตกปลาสบายๆ บนจอ CYD (ESP32-2432S028R จอเหลือง 2.8") ติดตั้งครั้งแรกหรืออัปเดต ไม่ต้องลงโปรแกรม ใช้ได้ทั้ง<b>คอมพิวเตอร์</b> (Chrome หรือ Edge) และ<b>มือถือ Android</b> (Chrome กับสาย OTG)</p>
+    <div class="tags"><span>เวอร์ชัน <b id="ver">…</b></span><span>ฟรี</span><span>ออฟไลน์ 100%</span><span>ไม่ใช้ microSD</span><span>ทุกรุ่นจอ</span><span>ต่อจอยบลูทูธได้</span></div>
+  </header>
+
+  <div id="unsupported" class="box warn" hidden><b>เบราว์เซอร์นี้ใช้ไม่ได้</b><br>เปิดหน้านี้ด้วย Google Chrome หรือ Microsoft Edge บนคอม หรือ Chrome บนมือถือ Android · iPhone และ iPad ใช้ไม่ได้ (Apple ไม่เปิดให้เว็บใช้พอร์ต USB)</div>
+
+  <section class="card">
+    <h2>1. เสียบบอร์ด</h2>
+    <ol>
+      <li><b>คอม:</b> เสียบด้วยสาย USB ที่ส่งข้อมูลได้ และปิดโปรแกรมอื่นที่อาจใช้พอร์ต เช่น Arduino IDE, Serial Monitor</li>
+      <li><b>มือถือ:</b> ใช้สาย USB-C ↔ USB-C หรือหัวแปลง OTG จอบอร์ดควรติด (OPPO, realme, vivo บางรุ่นต้องเปิด “การเชื่อมต่อ OTG” ในตั้งค่าก่อน)</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>2. เลือกแบบติดตั้ง</h2>
+    <div class="choice">
+      <label><span><input type="radio" name="mode" value="keep" checked> <b>อัปเดต / ลงครั้งแรก</b></span><span class="muted" style="font-size:14px">เซฟเดิมยังอยู่ (ปลา ตู้ปลา เบ็ด เงิน)</span></label>
+      <label class="danger"><span><input type="radio" name="mode" value="erase"> <b>ล้างเครื่องแล้วลงใหม่</b></span><span class="muted" style="font-size:14px">เริ่มเกมใหม่ เซฟหาย ต้องปรับทัชใหม่</span></label>
+    </div>
+    <p class="muted" style="font-size:14px">ไม่ต้องเลือกรุ่นจอ: เกมตรวจจอ (ILI9341 / ST7789) แล้วตั้งสีให้เองตอนเปิดครั้งแรก</p>
+  </section>
+
+  <section class="card">
+    <h2>3. ติดตั้ง</h2>
+    <button class="btn" id="go">เชื่อมต่อบอร์ดและติดตั้ง</button>
+    <button class="btn ghost" id="probe">ตรวจการเชื่อมต่อ (ไม่เขียนอะไรลงบอร์ด)</button>
+    <div class="bar" aria-hidden="true"><div id="bar"></div></div>
+    <p id="status" class="muted">กดปุ่มแล้วเลือกบอร์ด (ชื่อมักเป็น “USB Serial”, “CH340” หรือ COM) แล้วกดเชื่อมต่อ</p>
+    <div class="box tip">ใช้เวลาประมาณ 1–3 นาที อย่าถอดสายหรือปิดจอมือถือระหว่างนี้ · ค้างที่ “กำลังเชื่อมต่อ” นาน: กดปุ่ม BOOT ที่บอร์ดค้างไว้แล้วลองใหม่</div>
+    <details><summary>ตั้งค่าขั้นสูง / บันทึกการทำงาน</summary>
+      <p style="margin-top:8px">วิธีเชื่อมต่อ <select id="conn"><option value="auto" selected>อัตโนมัติ</option><option value="serial">Web Serial (คอม)</option><option value="usb">WebUSB (มือถือ Android)</option></select> <span id="connnow" class="muted"></span></p>
+      <p>ความเร็ว <select id="baud"><option value="460800" selected>460800 (เร็ว)</option><option value="115200">115200 (ถ้าแบบเร็วไม่ผ่าน)</option></select></p>
+      <button class="btn ghost" id="copylog" type="button" style="font-size:15px;padding:8px;margin-top:8px">คัดลอกบันทึก</button>
+      <pre id="log"></pre>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>หลังติดตั้ง</h2>
+    <ol>
+      <li>เปิดครั้งแรก: แตะ + ทั้ง 4 มุมเพื่อปรับทัชให้ตรง (ทำครั้งเดียว · บอร์ดที่เคยลง Pocket Wilds ใช้ค่าเดิมได้เลย)</li>
+      <li>หน้าปก แตะจอเพื่อเริ่ม แล้วแตะที่น้ำเพื่อเหวี่ยงเบ็ด ทุ่นกระตุกให้แตะ แล้วกดค้าง/ปล่อยให้ปลาอยู่ในกล่องเขียว</li>
+      <li>อยากเริ่มใหม่: MENU › NEW GAME แตะ 2 ครั้ง (ไม่ต้องล้างเครื่อง)</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>ในเกมมีอะไร</h2>
+    <ul>
+      <li>ที่ตกปลา 7 แห่ง จากบ่อหน้าบ้าน ลำธาร ทะเลสาบ ชายหาด ท่าเรือ ไปจนถึงทะเลลึก · น้ำระยิบ เงาปลาว่ายจริง</li>
+      <li>ปลา 42 ชนิด ดาว 1–5 ขนาด S–XL ทำสถิติตัวใหญ่สุด · สมุดปลาแยกตามที่</li>
+      <li>เควสง่ายๆ ทุกที่ แล้วเจอบอสเงายักษ์ ตกได้ = เปิดที่ใหม่ · ต่อเรือออกทะเล · มีความลับซ่อนอยู่</li>
+      <li><b>ตู้ปลามีชีวิต</b>: ปลาที่ตกได้ลงตู้ได้ 12 ตัว เคาะจอให้อาหาร/ทำความสะอาด ปลาเชื่องว่ายมาหา · ฉากตู้ 14 แบบ ของแต่ง 16 ชิ้น</li>
+      <li>กลางวัน กลางคืน ฝนตก (ปลาบางชนิดออกเฉพาะตอนนั้น) · ไซดักปลาทุกที่ · เบ็ดเก่งขึ้นตามการตก</li>
+      <li>วางตั้งโต๊ะได้: ไม่มีใครเล่น 1 นาที เปลี่ยนเป็นตู้ปลาเอง · เล่นด้วยจอยบลูทูธได้</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="img/01_pond.jpg" alt="ลำธาร มีเงาปลาในน้ำและไซ" loading="lazy"><figcaption>ตกปลาที่ลำธาร</figcaption></figure>
+      <figure><img src="img/02_catch.jpg" alt="ตกได้ Sunfish 5 ดาว PERFECT RECORD" loading="lazy"><figcaption>PERFECT! RECORD!</figcaption></figure>
+      <figure><img src="img/09_deep_sea.jpg" alt="ตกปลากลางทะเลบนเรือ" loading="lazy"><figcaption>ออกทะเลด้วยเรือ</figcaption></figure>
+      <figure><img src="img/03_bowl.jpg" alt="ตู้ปลาแบบโถแก้วริมหน้าต่าง" loading="lazy"><figcaption>โถแก้วริมหน้าต่าง</figcaption></figure>
+      <figure><img src="img/04_porthole.jpg" alt="ตู้ปลาแบบหน้าต่างเรือดำน้ำ" loading="lazy"><figcaption>หน้าต่างเรือดำน้ำ</figcaption></figure>
+      <figure><img src="img/05_garden.jpg" alt="ตู้ปลาแบบบ่อสวนญี่ปุ่น" loading="lazy"><figcaption>บ่อสวนญี่ปุ่น</figcaption></figure>
+      <figure><img src="img/06_book.jpg" alt="สมุดปลา" loading="lazy"><figcaption>สมุดปลา</figcaption></figure>
+      <figure><img src="img/07_map.jpg" alt="แผนที่ 7 จุดตกปลา" loading="lazy"><figcaption>แผนที่</figcaption></figure>
+      <figure><img src="img/10_pick.jpg" alt="เลือกปลาลงตู้" loading="lazy"><figcaption>เลือกปลาลงตู้</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>คู่มือและไฟล์</h2>
+    <div class="links">
+      <a href="guide.txt">คู่มือการเล่น (ภาษาไทย) <span>เปิดอ่าน ›</span></a>
+      <a href="firmware/full.bin" download>ไฟล์เฟิร์มแวร์ตัวเต็ม (.bin) <span>ลงด้วยโปรแกรมอื่นที่ 0x0 ›</span></a>
+      <a href="changelog.txt">มีอะไรใหม่ (Changelog) <span>เปิดอ่าน ›</span></a>
+    </div>
+  </section>
+
+  <footer>
+    <p>Pocket Fishing · by tee &amp; claude · แจกฟรี เจอบั๊กแจ้งได้พร้อมเลขเวอร์ชัน (มุมซ้ายล่างของหน้าปก) และรุ่นบอร์ด</p>
+    <p>ภาพในเกมวาดด้วย AI (ChatGPT) · ใช้ esptool-js (Apache-2.0) ของ Espressif ดู <a href="mobile/esptool-js/LICENSE">LICENSE</a></p>
+  </footer>
+</main>
+
+<script type="module">
+import { ESPLoader, Transport } from './mobile/esptool-js/esptool.js?v=1';
+import { Ch340Port, CH34X_FILTERS } from './mobile/ch340-webusb.js?v=4';
+
+const $ = (id) => document.getElementById(id);
+const logEl = $('log');
+const log = (t) => { logEl.textContent += t + '\n'; logEl.scrollTop = logEl.scrollHeight; };
+const status = (t, cls = '') => { const s = $('status'); s.textContent = t; s.className = cls || 'muted'; };
+const bar = (f) => { $('bar').style.width = Math.round(f * 100) + '%'; };
+
+// Android: Chrome's Web Serial lists only Bluetooth devices, so the board goes over WebUSB
+// with the CH340 driver. Computers: Web Serial (the OS driver owns the CH340 there).
+const isAndroid = /Android/i.test(navigator.userAgent);
+const useUsb = () => {
+  const m = $('conn').value;
+  if (m !== 'auto') return m === 'usb';
+  return isAndroid || !('serial' in navigator);
+};
+const showConn = () => { $('connnow').textContent = useUsb() ? '(ใช้ WebUSB)' : '(ใช้ Web Serial)'; };
+$('conn').addEventListener('change', showConn);
+showConn();
+if (!navigator.usb && !('serial' in navigator)) {
+  $('unsupported').hidden = false;
+  $('go').disabled = true;
+  $('probe').disabled = true;
+}
+
+async function pickPort() {
+  if (useUsb()) {
+    const dev = await navigator.usb.requestDevice({ filters: CH34X_FILTERS });
+    log(`USB ${dev.manufacturerName || ''} ${dev.productName || ''} (${dev.vendorId.toString(16)}:${dev.productId.toString(16)})`);
+    const p = new Ch340Port(dev);
+    p.onLog = log;
+    return p;
+  }
+  const p = await navigator.serial.requestPort();
+  const i = p.getInfo();
+  log(`Web Serial ${i.usbVendorId ? i.usbVendorId.toString(16) + ':' + (i.usbProductId || 0).toString(16) : ''}`);
+  return p;
+}
+
+fetch('manifest.json', { cache: 'no-cache' }).then((r) => r.json()).then((m) => { $('ver').textContent = m.version; }).catch(() => {});
+
+async function fetchBin(path) {
+  const r = await fetch(path, { cache: 'no-cache' });
+  if (!r.ok) throw new Error(`โหลด ${path} ไม่ได้ (${r.status})`);
+  return new Uint8Array(await r.arrayBuffer());
+}
+
+$('go').addEventListener('click', async () => {
+  const erase = document.querySelector('input[name=mode]:checked').value === 'erase';
+  if (erase && !window.confirm('ล้างเครื่องทั้งหมด: ปลา ตู้ปลา เงิน และค่าแตะจอจะหาย ต่อไหม?')) return;
+  const baud = parseInt($('baud').value, 10);
+  let port = null, transport = null;
+  $('go').disabled = true;
+  bar(0);
+  logEl.textContent = '';
+  try {
+    status('เลือกบอร์ด...');
+    const picked = await pickPort();
+
+    status('กำลังโหลดไฟล์เกม...');
+    const m = await (await fetch('manifest.json', { cache: 'no-cache' })).json();
+    // boot part at 0x0 and the game at 0xe000: the save (0x9000-0xDFFF) between them is left alone
+    const files = [];
+    for (const p of m.builds[0].parts) files.push({ data: await fetchBin(p.path), address: p.offset });
+    log(`Pocket Fishing ${m.version}: ` + files.map((f) => `0x${f.address.toString(16)} ${f.data.length} B`).join(', ') + (erase ? ' (erase all)' : ''));
+
+    status('กำลังเชื่อมต่อบอร์ด...');
+    port = picked;
+    transport = new Transport(port, false);
+    const terminal = { clean() {}, writeLine: log, write: (t) => log(t) };
+    // both lines change in one USB request (a phone's USB is slow between two requests)
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const classicReset = (t, delay) => ({
+      reset: async () => {
+        await port.setSignals({ dataTerminalReady: false, requestToSend: true });
+        await sleep(100);
+        await port.setSignals({ dataTerminalReady: true, requestToSend: false });
+        await sleep(delay);
+        await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+      },
+    });
+    const hardReset = () => ({
+      reset: async () => {
+        await port.setSignals({ dataTerminalReady: false, requestToSend: true });
+        await sleep(100);
+        await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+      },
+    });
+    const loader = new ESPLoader({ transport, baudrate: baud, romBaudrate: 115200, terminal, debugLogging: true,
+                                   resetConstructors: { classicReset, hardReset } });
+    const chip = await loader.main();
+    log('chip: ' + chip);
+    if (loader.chip.CHIP_NAME !== 'ESP32') throw new Error('ไม่ใช่บอร์ด ESP32 รุ่นที่รองรับ: ' + chip);
+
+    status(erase ? 'กำลังล้างเครื่องและเขียนเกม... อย่าถอดสาย' : 'กำลังเขียนเกม... อย่าถอดสาย (เซฟเดิมไม่หาย)');
+    const total = files.reduce((a, f) => a + f.data.length, 0);
+    const before = files.map((f, i) => files.slice(0, i).reduce((a, g) => a + g.data.length, 0));
+    await loader.writeFlash({
+      fileArray: files, flashMode: 'keep', flashFreq: 'keep', flashSize: 'keep', eraseAll: erase, compress: true,
+      reportProgress: (i, written, size) => bar((before[i] + written) / total),
+    });
+    bar(1);
+    status('กำลังเริ่มเครื่องใหม่...');
+    await loader.after('hard_reset');
+    status('ติดตั้งเสร็จแล้ว ถอดสายได้เลย บอร์ดจะเริ่มเกมเอง', 'ok');
+  } catch (e) {
+    console.error(e);
+    log('ERROR: ' + (e && e.message ? e.message : e));
+    if (port && port.rxBytes !== undefined) log(`usb rx ${port.rxBytes} B, tx ${port.txBytes} B`);
+    if (e && e.name === 'NotFoundError') status('ไม่ได้เลือกบอร์ด ถ้าไม่เห็นบอร์ดในรายการ ลองเปลี่ยนสาย (คอม: Windows อาจต้องลงไดรเวอร์ CH340)', 'bad');
+    else status('ติดตั้งไม่สำเร็จ: ' + (e && e.message ? e.message : e) + ' ลองใหม่ หรือเลือกความเร็ว 115200 ในตั้งค่าขั้นสูง', 'bad');
+  } finally {
+    try { if (transport) await transport.disconnect(); else if (port) await port.close(); } catch (e) { /* closed */ }
+    $('go').disabled = false;
+  }
+});
+
+$('copylog').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(logEl.textContent);
+    $('copylog').textContent = 'คัดลอกแล้ว วางในแชตได้เลย';
+  } catch (e) {
+    const r = document.createRange();
+    r.selectNodeContents(logEl);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+    $('copylog').textContent = 'เลือกข้อความแล้ว กดคัดลอกค้างไว้';
+  }
+});
+
+const printable = (t) => Array.from(t, (c) => {
+  const n = c.charCodeAt(0);
+  return n === 10 || n === 13 || (n >= 32 && n < 127) ? c : '.';
+}).join('');
+
+// connection check: a normal restart (boot text proves reading works), then one with IO0 low
+$('probe').addEventListener('click', async () => {
+  $('probe').disabled = true;
+  logEl.textContent = '';
+  document.querySelector('details').open = true;
+  let port = null;
+  try {
+    port = await pickPort();
+    await port.open({ baudRate: 115200 });
+    const reader = port.readable.getReader();
+    const dec = new TextDecoder('latin1');
+    let text = '';
+    (async () => { try { for (;;) { const { value, done } = await reader.read(); if (done) break; text += dec.decode(value); } } catch (e) {} })();
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const pulse = async (io0low) => {
+      await port.setSignals({ dataTerminalReady: false, requestToSend: true });
+      await wait(120);
+      await port.setSignals({ dataTerminalReady: io0low, requestToSend: false });
+      await wait(io0low ? 400 : 1500);
+      await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+    };
+    status('ทดสอบ 1: เริ่มบอร์ดใหม่แบบปกติ...');
+    await pulse(false);
+    await wait(500);
+    log('--- normal boot (' + text.length + ' chars) ---');
+    log(printable(text.slice(0, 600)));
+    const normalOk = /boot:0x/.test(text);
+    text = '';
+    status('ทดสอบ 2: เข้าโหมดแฟลช...');
+    await pulse(true);
+    await wait(300);
+    log('--- download mode (' + text.length + ' chars) ---');
+    log(printable(text.slice(0, 400)));
+    const dlOk = /waiting for download/.test(text);
+    await reader.cancel().catch(() => {});
+    if (port.rxBytes !== undefined) log(`usb rx ${port.rxBytes} B`);
+    status(normalOk ? (dlOk ? 'อ่านข้อมูลได้ และเข้าโหมดแฟลชได้ พร้อมติดตั้ง' : 'อ่านข้อมูลได้ แต่เข้าโหมดแฟลชเองไม่ได้: กดปุ่ม BOOT ค้างไว้ตอนติดตั้ง')
+                    : 'ไม่ได้รับข้อมูลจากบอร์ด (ดูบันทึกด้านล่าง)', normalOk && dlOk ? 'ok' : 'bad');
+  } catch (e) {
+    log('ERROR: ' + (e && e.message ? e.message : e));
+    status('ตรวจไม่สำเร็จ: ' + (e && e.message ? e.message : e), 'bad');
+  } finally {
+    try { if (port) await port.close(); } catch (e) {}
+    $('probe').disabled = false;
+  }
+});
+</script>
+</body>
+</html>
