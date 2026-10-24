@@ -164,7 +164,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
 
   <footer>
     <p>Pocket Fishing · by tee &amp; claude · แจกฟรี เจอบั๊กแจ้งได้พร้อมเลขเวอร์ชัน (มุมซ้ายล่างของหน้าปก) และรุ่นบอร์ด</p>
-    <p>ภาพในเกมวาดด้วย AI (ChatGPT) · ใช้ esptool-js (Apache-2.0) ของ Espressif ดู <a href="mobile/esptool-js/LICENSE">LICENSE</a></p>
+    <p>หน้านี้นับแค่จำนวนครั้งที่ติดตั้งสำเร็จ (+1) ไม่เก็บข้อมูลใดๆ ของคุณ · ภาพในเกมวาดด้วย AI (ChatGPT) · ใช้ esptool-js (Apache-2.0) ของ Espressif ดู <a href="mobile/esptool-js/LICENSE">LICENSE</a></p>
   </footer>
 </main>
 
@@ -275,6 +275,7 @@ $('go').addEventListener('click', async () => {
     status('กำลังเริ่มเครื่องใหม่...');
     await loader.after('hard_reset');
     status('ติดตั้งเสร็จแล้ว ถอดสายได้เลย บอร์ดจะเริ่มเกมเอง', 'ok');
+    fetch('https://abacus.jasoncameron.dev/hit/pocket-fishing-flasher/installs').catch(() => {});   // +1 install, nothing about you
   } catch (e) {
     console.error(e);
     log('ERROR: ' + (e && e.message ? e.message : e));
