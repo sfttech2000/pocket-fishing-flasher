@@ -132,6 +132,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
       <button class="btn" id="sget" type="button">เก็บเซฟเป็นไฟล์</button>
       <button class="btn ghost" id="sput" type="button">คืนเซฟจากไฟล์</button>
     </div>
+    <button class="btn" id="sgo" type="button" style="margin-top:8px;background:var(--ok)" hidden>เชื่อมต่อบอร์ดและคืนเซฟ</button>
     <input type="file" id="sfile" accept=".pfsave,.txt,text/plain" hidden>
     <p id="sstatus" class="muted">บอร์ดต้องมีเกม Pocket Fishing อยู่ (เวอร์ชัน 1.0.13 ขึ้นไป) · เกมจะเริ่มใหม่เองหนึ่งครั้ง</p>
     <div class="box tip">ไฟล์เซฟใช้ได้กับ<b>บอร์ดตัวเดิมเท่านั้น</b> และแก้ไขไม่ได้ (ไฟล์ที่ถูกแก้ เกมจะไม่รับ) เก็บไฟล์ไว้ในคอมหรือมือถือให้ดี</div>
@@ -430,13 +431,22 @@ $('sget').addEventListener('click', () => gameTalk(async (answer) => {
 }));
 
 $('sput').addEventListener('click', () => { $('sfile').value = ''; $('sfile').click(); });
+// two steps: the file first, then a second press opens the port (the browser asks for the port only on a press)
+let sWords = null;
 $('sfile').addEventListener('change', async () => {
   const f = $('sfile').files[0];
+  $('sgo').hidden = true;
   if (!f) return;
   const words = (await f.text()).trim().split(/\s+/);
   const hex = words[words.length - 1];
   if (words[0] !== 'PocketFishing' || !/^[0-9a-f]+$/i.test(hex)) { sStatus('ไฟล์นี้ไม่ใช่ไฟล์เซฟของ Pocket Fishing', 'bad'); return; }
-  if (!window.confirm(`คืนเซฟจากไฟล์ ${f.name}? เซฟที่อยู่ในบอร์ดตอนนี้จะถูกแทนที่`)) return;
+  sWords = words;
+  $('sgo').hidden = false;
+  sStatus(`เลือกไฟล์ ${f.name} แล้ว (บอร์ดหมายเลข ${words[1]}) กดปุ่มด้านบนเพื่อเชื่อมต่อบอร์ดและคืนเซฟ · เซฟที่อยู่ในบอร์ดตอนนี้จะถูกแทนที่`);
+});
+$('sgo').addEventListener('click', () => {
+  const words = sWords, hex = words[words.length - 1];
+  $('sgo').hidden = true;
   gameTalk(async (answer, send, wait) => {
     sStatus('กำลังคืนเซฟ...');
     if (!await answer('@saveget', ['@save '], 15, true)) { sStatus(NO_GAME, 'bad'); return; }   // the game is up
