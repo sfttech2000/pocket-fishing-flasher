@@ -1,6 +1,6 @@
 {
   "name": "Pocket Fishing",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "builds": [
     {
       "chipFamily": "ESP32",

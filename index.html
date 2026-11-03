@@ -418,7 +418,7 @@ const NO_GAME = 'บอร์ดไม่ตอบ: ต้องมีเกม 
 
 $('sget').addEventListener('click', () => gameTalk(async (answer) => {
   sStatus('กำลังอ่านเซฟจากบอร์ด...');
-  const l = await answer('@saveget', ['@save '], 15, true);
+  const l = await answer('@saveget', ['@save '], 30, true);
   if (!l) { sStatus(NO_GAME, 'bad'); return; }
   const [, board, hex] = l.split(' ');
   const d = new Date(), ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
@@ -449,7 +449,7 @@ $('sgo').addEventListener('click', () => {
   $('sgo').hidden = true;
   gameTalk(async (answer, send, wait) => {
     sStatus('กำลังคืนเซฟ...');
-    if (!await answer('@saveget', ['@save '], 15, true)) { sStatus(NO_GAME, 'bad'); return; }   // the game is up
+    if (!await answer('@saveget', ['@save '], 30, true)) { sStatus(NO_GAME, 'bad'); return; }   // the game is up
     if (!await answer('@saveput', ['@ready'], 3)) { sStatus('บอร์ดไม่ตอบ ลองใหม่อีกครั้ง', 'bad'); return; }
     const r = await answer(hex, ['@saveok', '@savebad'], 6);
     const why = { file: 'ไฟล์เสียหรือถูกแก้ไข เกมไม่รับ', board: `ไฟล์นี้เป็นของบอร์ดอื่น (หมายเลข ${words[1]}) ใช้ได้กับบอร์ดตัวเดิมเท่านั้น`,
