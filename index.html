@@ -134,7 +134,7 @@ footer { font-size: 13px; color: var(--muted); display: grid; gap: 4px; }
     </div>
     <button class="btn" id="sgo" type="button" style="margin-top:8px;background:var(--ok)" hidden>เชื่อมต่อบอร์ดและคืนเซฟ</button>
     <input type="file" id="sfile" accept=".pfsave,.txt,text/plain" hidden>
-    <p id="sstatus" class="muted">บอร์ดต้องมีเกม Pocket Fishing อยู่ (เวอร์ชัน 1.0.13 ขึ้นไป) · เกมจะเริ่มใหม่เองหนึ่งครั้ง</p>
+    <p id="sstatus" class="muted">บอร์ดต้องมีเกม Pocket Fishing อยู่ (เวอร์ชัน 1.0.13 ขึ้นไป) · เกมจะเริ่มใหม่เองหนึ่งครั้ง · ลงเกมใหม่แล้วจอขึ้นเครื่องหมาย + ให้แตะปรับทัชให้เสร็จก่อน</p>
     <div class="box tip">ไฟล์เซฟใช้ได้กับ<b>บอร์ดตัวเดิมเท่านั้น</b> และแก้ไขไม่ได้ (ไฟล์ที่ถูกแก้ เกมจะไม่รับ) เก็บไฟล์ไว้ในคอมหรือมือถือให้ดี</div>
   </section>
 
@@ -414,7 +414,7 @@ async function gameTalk(work) {
     $('sget').disabled = $('sput').disabled = false;
   }
 }
-const NO_GAME = 'บอร์ดไม่ตอบ: ต้องมีเกม Pocket Fishing 1.0.13 ขึ้นไปอยู่ในบอร์ด (ถ้ายังเก่า ติดตั้งแบบ "อัปเดต" ก่อน เซฟไม่หาย)';
+const NO_GAME = 'บอร์ดไม่ตอบ: ถ้าจอขึ้นเครื่องหมาย + ให้แตะปรับทัชให้เสร็จก่อนแล้วกดใหม่ · ต้องมีเกม Pocket Fishing 1.0.13 ขึ้นไปอยู่ในบอร์ด (ถ้ายังเก่า ติดตั้งแบบ "อัปเดต" ก่อน เซฟไม่หาย)';
 
 $('sget').addEventListener('click', () => gameTalk(async (answer) => {
   sStatus('กำลังอ่านเซฟจากบอร์ด...');
